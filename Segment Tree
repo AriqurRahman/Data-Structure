@@ -1,0 +1,58 @@
+//*************** Segment Tree **************************
+#define mt 100001
+ll ArT[mt];
+ll tree[mt*3];
+ 
+ll MargeTree(ll LF,ll RF)
+{
+    return LF+RF;
+}
+ 
+void Tree_creation(ll node, ll b, ll e)
+{
+    if(b==e)
+    {
+        tree[node]=ArT[b];
+        return;
+    }
+ 
+    Tree_creation( node*2, b, (b+e)/2);
+    Tree_creation( (node*2)+1, (((b+e)/2)+1), e);
+ 
+    ll LF=tree[node*2];
+    ll RF=tree[node*2+1];
+    tree[node] = MargeTree(LF,RF);
+}
+ 
+void Tree_Update(ll node, ll b, ll e, ll pos, ll val)
+{
+    if(pos>e || pos<b)
+    return;
+ 
+    if(b==e)
+    {
+        tree[node]=val;
+        return;
+    }
+ 
+    Tree_Update(node*2,b,(b+e)/2,pos,val);
+    Tree_Update( (node*2)+1, (((b+e)/2)+1), e, pos, val);
+ 
+    ll LF=tree[node*2];
+    ll RF=tree[node*2+1];
+ 
+    tree[node] = MargeTree(LF,RF);
+}
+ 
+ll Tree_Query(ll node, ll b, ll e, ll st, ll en)
+{
+    if(st>e || en<b)
+        return 10000000;
+    if(b>=st && e<=en)
+        return tree[node];
+ 
+    ll LF = Tree_Query( node*2, b, (b+e)/2 , st, en);
+    ll RF = Tree_Query( (node*2)+1, (((b+e)/2)+1), e, st, en);
+ 
+    return MargeTree(LF,RF);
+}
