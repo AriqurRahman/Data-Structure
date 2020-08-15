@@ -1,0 +1,79 @@
+//*************** Lazy Propagation **********************
+//#define mt 100000
+//ll ArT[mt];
+struct Node{
+    ll sum, lazy;
+}tree[3*mt];
+ 
+ll MargeTree(ll LF,ll RF)
+{
+    return LF+RF;
+}
+ 
+void LP_creation(ll node, ll b, ll e)
+{
+    if(b==e)
+    {
+        tree[node].sum=ArT[b];
+        return;
+    }
+ 
+    LP_creation( node*2, b, (b+e)/2);
+    LP_creation( (node*2)+1, (((b+e)/2)+1), e);
+ 
+    ll LF=tree[node*2].sum;
+    ll RF=tree[node*2+1].sum;
+    tree[node].sum = MargeTree(LF,RF);
+}
+ 
+ 
+void LPU_Node(ll node, ll b, ll e, ll v)
+{
+    tree[node].sum=tree[node].sum+((e-b+1)*v);
+    tree[node].lazy=tree[node].lazy+v;
+}
+ 
+void LPU_Lazy(ll node, ll b, ll e)
+{
+    LPU_Node(node*2, b, (b+e)/2, tree[node].lazy);
+    LPU_Node((node*2)+1, ((b+e)/2)+1, e, tree[node].lazy);
+    tree[node].lazy=0;
+}
+ 
+void LP_Update(ll node, ll b, ll e, ll st, ll en, ll v)
+{
+    if(st>e || en<b) return;
+ 
+    if(b>=st && e<=en)
+    {
+        LPU_Node(node,b,e,v);
+        return;
+    }
+ 
+ 
+    LP_Update(node*2, b, (b+e)/2, st, en, v);
+    LP_Update((node*2)+1, ((b+e)/2)+1, e, st, en, v);
+ 
+    ll LF=tree[node*2].sum;
+    ll RF=tree[node*2+1].sum;
+ 
+    tree[node].sum=MargeTree(LF,RF);
+}
+ 
+ll LP_Query(ll node, ll b, ll e, ll st, ll en)
+{
+    if(st>e || en<b)
+        return 0;
+    if(b>=st && e<=en)
+        return tree[node].sum;
+ 
+    if(tree[node].lazy) LPU_Lazy(node,b,e);
+ 
+    ll LF = LP_Query( node*2, b, (b+e)/2 , st, en);
+    ll RF = LP_Query( (node*2)+1, (((b+e)/2)+1), e, st, en);
+ 
+    return MargeTree(LF,RF);
+}
+ 
+//#######################################################
+ 
